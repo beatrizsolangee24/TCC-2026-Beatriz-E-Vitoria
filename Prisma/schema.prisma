@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoPerfil {
+  APOIADORA
+  AJUDADA
+  ADMIN
+}
+
+enum TipoDocumento {
+  DOCUMENTO_IDENTIDADE
+  COMPROVANTE_MATRICULA
+  CADUNICO
+  COMPROVANTE_RENDA
+  COMPROVANTE_RESIDENCIA
+  OUTROS
+}
+
+model Usuario {
+  id          String      @id @default(uuid()) @db.Uuid
+  nome        String      @db.VarChar(255)
+  email       String      @unique @db.VarChar(255)
+  telefone    String?     @db.VarChar(20)
+  matricula   String?     @unique @db.VarChar(50)
+  idade       Int?
+  tipo        TipoPerfil
+  bio         String?     @db.Text
+  codigo      String?     @unique @db.VarChar(10)
+
+  createdAt   DateTime    @default(now()) @map("criado_em")
+  updatedAt   DateTime    @updatedAt @map("atualizado_em")
+
+  documentos  Documento[] 
+
+  @@map("usuarios")
+}
+
+model Documento {
+  id          String        @id @default(uuid()) @db.Uuid
+  usuarioId   String        @db.Uuid
+  tipo        TipoDocumento
+  urlArquivo  String        @db.VarChar(500) 
+  criadoEm    DateTime      @default(now()) @map("criado_em")
+
+  usuario     Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("documentos")
+}
+
+model Administrador {
+  id          String   @id @default(uuid()) @db.Uuid
+  nome        String   @db.VarChar(200)
+  email       String   @unique @db.VarChar(255)
+  senha       String   @db.VarChar(50) 
+  criadoEm    DateTime @default(now()) @map("criado_em")
+
+  @@map("administradores")
+}
