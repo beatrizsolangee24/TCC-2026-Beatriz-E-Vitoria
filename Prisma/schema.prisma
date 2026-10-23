@@ -22,6 +22,12 @@ enum TipoDocumento {
   OUTROS
 }
 
+enum StatusAprovacao {
+  PENDENTE
+  APROVADA
+  REJEITADA
+}
+
 model Usuario {
   id          String      @id @default(uuid()) @db.Uuid
   nome        String      @db.VarChar(255)
@@ -32,6 +38,8 @@ model Usuario {
   tipo        TipoPerfil
   bio         String?     @db.Text
   codigo      String?     @unique @db.VarChar(10)
+
+  statusAprovacao StatusAprovacao @default(PENDENTE) @map("status_aprovacao")
 
   createdAt   DateTime    @default(now()) @map("criado_em")
   updatedAt   DateTime    @updatedAt @map("atualizado_em")
@@ -57,7 +65,7 @@ model Administrador {
   id          String   @id @default(uuid()) @db.Uuid
   nome        String   @db.VarChar(200)
   email       String   @unique @db.VarChar(255)
-  senha       String   @db.VarChar(50) 
+  senha       String   @db.VarChar(255) 
   criadoEm    DateTime @default(now()) @map("criado_em")
 
   @@map("administradores")
