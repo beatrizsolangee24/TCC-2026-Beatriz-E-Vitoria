@@ -4,8 +4,8 @@ import { useState } from "react";
 
 export function Formulario() {
   const [nome, setNome] = useState("");
-  const [tipo, setTipo] = useState(""); // Apoiadora ou Ajudada
-  const [vinculo, setVinculo] = useState(""); // Aluna, Servidora ou Externa
+  const [tipo, setTipo] = useState("");
+  const [vinculo, setVinculo] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [matricula, setMatricula] = useState("");
@@ -19,14 +19,20 @@ export function Formulario() {
     e.preventDefault();
     setErroMsg("");
 
-    // Validação inteligente dependendo do vínculo escolhido
-    if ((vinculo === "ALUNA" || vinculo === "SERVIDORA") && !matricula.trim()) {
-      setErroMsg("Por favor, preencha sua Matrícula do IFB.");
+    // Validação de segurança antes de enviar para a API
+    if (tipo === "AJUDADA" && !matricula.trim()) {
+      setErroMsg("Para receber apoio, é obrigatório informar sua Matrícula do IFB.");
       return;
     }
-    if (vinculo === "EXTERNA" && !cpf.trim()) {
-      setErroMsg("Por favor, preencha seu CPF.");
-      return;
+    if (tipo === "APOIADORA") {
+      if ((vinculo === "ALUNA" || vinculo === "SERVIDORA") && !matricula.trim()) {
+        setErroMsg("Por favor, preencha sua Matrícula do IFB.");
+        return;
+      }
+      if (vinculo === "EXTERNA" && !cpf.trim()) {
+        setErroMsg("Por favor, preencha seu CPF.");
+        return;
+      }
     }
 
     setCarregando(true);
@@ -42,7 +48,7 @@ export function Formulario() {
           tipo,
           email,
           telefone,
-          // Envia apenas o dado relevante (se for aluna/servidora, o CPF vai vazio, e vice-versa)
+          // Envia apenas o dado relevante ao banco de dados
           matricula: (vinculo === "ALUNA" || vinculo === "SERVIDORA") ? matricula.trim() : undefined,
           cpf: vinculo === "EXTERNA" ? cpf.trim() : undefined,
         }),
@@ -72,13 +78,8 @@ export function Formulario() {
 
   return (
     <section id="participar" className="w-full bg-[#F8F8F8] px-4 py-12 sm:px-6 md:py-24">
-      <div
-        className="
-          mx-auto flex w-full max-w-[1000px] flex-col overflow-hidden rounded-[20px] 
-          border border-[#BE89BD] bg-white px-5 py-8 shadow-[0_18px_40px_rgba(48,48,48,0.20)] 
-          sm:px-8 sm:py-10 md:flex-row md:px-12 md:py-12
-        "
-      >
+      <div className="mx-auto flex w-full max-w-[1000px] flex-col overflow-hidden rounded-[20px] border border-[#BE89BD] bg-white px-5 py-8 shadow-[0_18px_40px_rgba(48,48,48,0.20)] sm:px-8 sm:py-10 md:flex-row md:px-12 md:py-12">
+        
         {/* LADO ESQUERDO */}
         <div className="flex flex-1 flex-col justify-center pr-0 md:pr-8 lg:pr-12">
           <h2 className="font-vastago text-[28px] font-bold leading-[1.1] text-[#303030] sm:text-[34px] md:text-[36px] lg:text-[42px]">
@@ -98,9 +99,7 @@ export function Formulario() {
           
           {/* NOME */}
           <div>
-            <label htmlFor="nome" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">
-              Nome
-            </label>
+            <label htmlFor="nome" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Nome</label>
             <input
               id="nome" type="text" required value={nome} onChange={(e) => setNome(e.target.value)}
               placeholder="Digite seu nome"
@@ -110,11 +109,21 @@ export function Formulario() {
 
           {/* EU QUERO SER */}
           <div className="mt-4">
-            <label htmlFor="tipo" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">
-              Eu quero ser
-            </label>
+            <label htmlFor="tipo" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Eu quero ser</label>
             <select
-              id="tipo" required value={tipo} onChange={(e) => setTipo(e.target.value)}
+              id="tipo" required value={tipo} 
+              onChange={(e) => {
+                const selecao = e.target.value;
+                setTipo(selecao);
+                if (selecao === "AJUDADA") {
+                  setVinculo("ALUNA"); // Força ser aluna do IFB
+                  setCpf("");          // Descarta o CPF
+                } else {
+                  setVinculo("");      // Reseta para a Apoiadora poder escolher o vínculo dela
+                  setMatricula("");
+                  setCpf("");
+                }
+              }}
               className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
             >
               <option value="">Selecione uma opção</option>
@@ -125,9 +134,7 @@ export function Formulario() {
 
           {/* EMAIL */}
           <div className="mt-4">
-            <label htmlFor="email" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">
-              E-mail
-            </label>
+            <label htmlFor="email" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">E-mail</label>
             <input
               id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="Digite seu e-mail"
@@ -137,9 +144,7 @@ export function Formulario() {
 
           {/* TELEFONE */}
           <div className="mt-4">
-            <label htmlFor="telefone" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">
-              Telefone
-            </label>
+            <label htmlFor="telefone" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Telefone</label>
             <input
               id="telefone" type="tel" required value={telefone} onChange={(e) => setTelefone(e.target.value)}
               placeholder="Digite seu telefone"
@@ -147,28 +152,28 @@ export function Formulario() {
             />
           </div>
 
-          {/* VÍNCULO COM O IFB (Novo campo para controlar o documento) */}
-          <div className="mt-4">
-            <label htmlFor="vinculo" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">
-              Vínculo com o IFB
-            </label>
-            <select
-              id="vinculo" required value={vinculo} 
-              onChange={(e) => {
-                setVinculo(e.target.value);
-                setMatricula(""); // Limpa os campos se ela trocar a seleção
-                setCpf("");
-              }}
-              className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
-            >
-              <option value="">Selecione...</option>
-              <option value="ALUNA">Sou Aluna do IFB</option>
-              <option value="SERVIDORA">Sou Servidora do IFB</option>
-              <option value="EXTERNA">Sem vínculo (Comunidade Externa)</option>
-            </select>
-          </div>
+          {/* VÍNCULO (Só aparece se ela for APOIADORA) */}
+          {tipo === "APOIADORA" && (
+            <div className="mt-4 animate-in fade-in duration-300">
+              <label htmlFor="vinculo" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Vínculo com o IFB</label>
+              <select
+                id="vinculo" required value={vinculo} 
+                onChange={(e) => {
+                  setVinculo(e.target.value);
+                  setMatricula(""); 
+                  setCpf("");
+                }}
+                className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
+              >
+                <option value="">Selecione...</option>
+                <option value="ALUNA">Sou Aluna do IFB</option>
+                <option value="SERVIDORA">Sou Servidora do IFB</option>
+                <option value="EXTERNA">Sem vínculo (Comunidade Externa)</option>
+              </select>
+            </div>
+          )}
 
-          {/* CAMPO DE DOCUMENTO DINÂMICO (Só aparece após ela escolher o vínculo) */}
+          {/* DOCUMENTO DINÂMICO */}
           {vinculo && (
             <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
               {(vinculo === "ALUNA" || vinculo === "SERVIDORA") ? (
@@ -214,7 +219,6 @@ export function Formulario() {
         </form>
       </div>
 
-      {/* POP-UP DE SUCESSO */}
       {enviado && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="flex w-full max-w-[290px] flex-col items-center justify-center rounded-[28px] bg-[#BE89BD] px-6 py-8 text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] sm:max-w-[270px] sm:px-7">
