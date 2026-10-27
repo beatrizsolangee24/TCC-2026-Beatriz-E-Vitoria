@@ -33,7 +33,8 @@ model Usuario {
   nome        String      @db.VarChar(255)
   email       String      @unique @db.VarChar(255)
   telefone    String?     @db.VarChar(20)
-  matricula   String?     @unique @db.VarChar(50)
+  matricula   String?     @unique @db.VarChar(12)
+  cpf         String?     @unique @db.VarChar(14)
   idade       Int?
   tipo        TipoPerfil
   bio         String?     @db.Text
