@@ -2,6 +2,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import {
+  faGauge,
+  faClipboardList,
+  faUsers,
+  faFileLines,
+  faChartColumn,
+} from "@fortawesome/free-solid-svg-icons";
 
 type Inscricao = {
   id: number;
@@ -134,24 +143,25 @@ useEffect(() => {
     (item) => item.status === "Em análise"
   ).length;
 
-  const menu = [
-    { nome: "Visão geral", icone: "◫" },
-    { nome: "Inscrições", icone: "▤" },
-    { nome: "Participantes", icone: "♙" },
-    { nome: "Documentos", icone: "▧" },
-    { nome: "Relatórios", icone: "▥" },
-  ];
+const menu = [
+  { nome: "Visão geral", icone: faGauge },
+  { nome: "Inscrições", icone: faClipboardList },
+  { nome: "Participantes", icone: faUsers },
+  { nome: "Documentos", icone: faFileLines },
+  { nome: "Relatórios", icone: faChartColumn },
+];
 
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
-        <div className="admin-brand">
-          <div className="brand-icon">A</div>
-          <div>
-            <strong>ApoiaMulher</strong>
-            <span>Painel administrativo</span>
-          </div>
-        </div>
+       
+<div className="admin-brand">
+  <div>
+    <strong className="brand-name">ApoiaMulherIFB</strong>
+    <span>Painel administrativo</span>
+  </div>
+</div>
+
 
         <div className="admin-section-label">MENU PRINCIPAL</div>
 
@@ -166,7 +176,9 @@ useEffect(() => {
                   : "admin-nav-item"
               }
             >
-              <span className="nav-icon">{item.icone}</span>
+              <span className="nav-icon">
+               <FontAwesomeIcon icon={item.icone} />
+                </span>
               {item.nome}
               {item.nome === "Inscrições" && pendentes > 0 && (
                 <span className="nav-count">{pendentes}</span>
@@ -416,11 +428,17 @@ useEffect(() => {
           display: block;
         }
 
-        .admin-brand strong {
-          font-size: 17px;
-          letter-spacing: -0.5px;
-        }
-
+      .admin-brand .brand-name {
+  display: block;
+  font-family: var(--font-vastago, "Vastago Grotesk"), sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #BE89BD 0%, #937FBE 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
         .admin-brand span {
           margin-top: 4px;
           font-size: 11px;
