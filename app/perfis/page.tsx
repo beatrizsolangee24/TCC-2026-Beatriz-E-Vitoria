@@ -1,16 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 
 const mulheres = [
   {
     id: 1,
-    nome: "Maria Júlia",
+    nome: "Maria Júlia Queiroz",
     codigo: "23546",
     descricao:
-      "Olá! Me chamo Maria, tenho 25 anos e sou estudante do IFB. Estou precisando de ajuda com alimentos e roupas, espero que possam me ajudar.",
+      "Olá! Me chamo Maria Júlia Queiroz, tenho 19 anos e sou estudante do IFB, no campus São Sebastião. Estou precisando de ajuda com materiais escolares para meus filhos e alimentos. Agradeço a quem puder me ajudar.",
   },
+
   {
     id: 2,
     nome: "Ana Clara",
@@ -35,7 +37,15 @@ export default function PerfisPage() {
     (typeof mulheres)[number] | null
   >(null);
   const [mensagem, setMensagem] = useState("");
+const [descricaoMaria, setDescricaoMaria] = useState(mulheres[0].descricao);
 
+useEffect(() => {
+  const descricaoSalva = localStorage.getItem("descricaoPerfil");
+
+  if (descricaoSalva) {
+    setDescricaoMaria(descricaoSalva);
+  }
+}, []);
   function apoiar(mulher: (typeof mulheres)[number]) {
     if (mulherSelecionada?.id === mulher.id) {
       setMulherSelecionada(null);
@@ -131,7 +141,7 @@ export default function PerfisPage() {
                 </div>
 
                 <p className="mt-2 max-w-[600px] font-urbanist text-[15px] font-normal leading-[1.6] text-[#303030]">
-                  {mulher.descricao}
+                  {mulher.id === 1 ? descricaoMaria : mulher.descricao}
                 </p>
 
                 {/* BOTÃO APOIAR */}

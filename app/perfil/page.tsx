@@ -143,7 +143,7 @@ export default function PerfilPage() {
                 text-white
               "
             >
-              Tipo de perfil: Apoiadora
+              Tipo de perfil: Participante
             </div>
 
           </div>
