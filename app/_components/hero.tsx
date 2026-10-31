@@ -26,7 +26,7 @@ export function Hero() {
           </a>
 
           <a
-            href="/escolha"
+            href="/login"
             className="flex h-[38px] px-[20px] items-center justify-center rounded-full bg-gradient-to-r from-[#BE89BD] to-[#937FBE] font-vastago text-[13px] md:text-[14px] font-bold text-white whitespace-nowrap shadow-[0_4px_8px_rgba(147,127,190,0.25)] transition hover:opacity-90"
           >
             Entrar

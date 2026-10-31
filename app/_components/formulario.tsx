@@ -235,7 +235,7 @@ export function Formulario() {
             </p>
             <span className="mt-4 text-[25px] leading-none text-white">☺</span>
             <button
-              type="button" onClick={() => { setEnviado(false); window.location.href = "/escolha"; }}
+              type="button" onClick={() => { setEnviado(false); window.location.href = "/login"; }}
               className="mt-5 rounded-full bg-white/20 px-6 py-2 font-vastago text-[14px] font-bold text-white transition hover:bg-white/30 sm:text-[15px]"
             >
               Ir para o Login

@@ -30,22 +30,42 @@ export default function LoginPage() {
 
     setCarregando(true);
 
-    // TODO: Aqui você integrará a chamada real para a sua API de login (/api/login)
-    // Por enquanto, mantemos a sua lógica de roteamento com um atraso simulado
-    setTimeout(() => {
-      // Salva a escolha no navegador (opcional, útil para manter o estado)
-      localStorage.setItem("tipoUsuario", tipo);
+    try {
+      // 1. Faz o pedido à nova rota de API de login
+      const resposta = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha }),
+      });
 
-      if (tipo === "APOIADORA") {
-        router.push("/apoiadora");
-      } else if (tipo === "AJUDADA") {
-        router.push("/ajuda");
-      } else if (tipo === "ADMIN") {
-        router.push("/admin"); // Rota do painel da administradora
+      const resultado = await resposta.json();
+
+      if (resposta.ok) {
+        // 2. Sucesso! Pega o tipo de perfil diretamente do banco de dados
+        const perfilBanco = resultado.tipoReal;
+        
+        // Salva os dados básicos da sessão no navegador
+        localStorage.setItem("tipoUsuario", perfilBanco);
+        localStorage.setItem("usuarioId", resultado.usuario.id);
+
+        // 3. Redireciona com base no tipo real da usuária
+        // (Isso impede que uma Ajudada entre no painel Admin apenas clicando na aba errada)
+        if (perfilBanco === "APOIADORA") {
+          router.push("/apoiadora");
+        } else if (perfilBanco === "AJUDADA") {
+          router.push("/ajuda");
+        } else if (perfilBanco === "ADMIN") {
+          router.push("/admin");
+        }
+      } else {
+        // Exibe "E-mail ou senha incorretos"
+        setErro(resultado.erro);
       }
-      
+    } catch (error) {
+      setErro("Erro ao conectar com o servidor. Tente novamente.");
+    } finally {
       setCarregando(false);
-    }, 800);
+    }
   }
 
   return (
