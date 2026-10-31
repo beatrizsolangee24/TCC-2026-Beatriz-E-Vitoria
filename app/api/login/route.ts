@@ -17,7 +17,6 @@ export async function POST(request: Request) {
       where: { email: email },
     });
 
-    
     if (!usuario) {
       return NextResponse.json({ erro: "E-mail ou senha incorretos." }, { status: 401 });
     }
