@@ -10,6 +10,10 @@ export function Formulario() {
   const [telefone, setTelefone] = useState("");
   const [matricula, setMatricula] = useState("");
   const [cpf, setCpf] = useState("");
+  
+  // Novos estados para a Senha
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const [enviado, setEnviado] = useState(false);
   const [carregando, setCarregando] = useState(false);
@@ -19,7 +23,16 @@ export function Formulario() {
     e.preventDefault();
     setErroMsg("");
 
-    // Validação de segurança antes de enviar para a API
+    if (senha.length < 6) {
+      setErroMsg("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+    if (senha !== confirmarSenha) {
+      setErroMsg("As senhas não coincidem. Tente novamente.");
+      return;
+    }
+
+    // 2. Validações de Segurança do Documento
     if (tipo === "AJUDADA" && !matricula.trim()) {
       setErroMsg("Para receber apoio, é obrigatório informar sua Matrícula do IFB.");
       return;
@@ -48,7 +61,7 @@ export function Formulario() {
           tipo,
           email,
           telefone,
-          // Envia apenas o dado relevante ao banco de dados
+          senha, // Enviamos a senha para o backend
           matricula: (vinculo === "ALUNA" || vinculo === "SERVIDORA") ? matricula.trim() : undefined,
           cpf: vinculo === "EXTERNA" ? cpf.trim() : undefined,
         }),
@@ -66,6 +79,8 @@ export function Formulario() {
         setTelefone("");
         setMatricula("");
         setCpf("");
+        setSenha("");
+        setConfirmarSenha("");
       } else {
         setErroMsg(resultado.erro || "Ocorreu um erro ao enviar o formulário.");
       }
@@ -116,10 +131,10 @@ export function Formulario() {
                 const selecao = e.target.value;
                 setTipo(selecao);
                 if (selecao === "AJUDADA") {
-                  setVinculo("ALUNA"); // Força ser aluna do IFB
-                  setCpf("");          // Descarta o CPF
+                  setVinculo("ALUNA"); 
+                  setCpf("");          
                 } else {
-                  setVinculo("");      // Reseta para a Apoiadora poder escolher o vínculo dela
+                  setVinculo("");      
                   setMatricula("");
                   setCpf("");
                 }
@@ -132,24 +147,26 @@ export function Formulario() {
             </select>
           </div>
 
-          {/* EMAIL */}
-          <div className="mt-4">
-            <label htmlFor="email" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">E-mail</label>
-            <input
-              id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="Digite seu e-mail"
-              className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
-            />
-          </div>
-
-          {/* TELEFONE */}
-          <div className="mt-4">
-            <label htmlFor="telefone" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Telefone</label>
-            <input
-              id="telefone" type="tel" required value={telefone} onChange={(e) => setTelefone(e.target.value)}
-              placeholder="Digite seu telefone"
-              className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
-            />
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            {/* EMAIL */}
+            <div className="flex-1">
+              <label htmlFor="email" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">E-mail</label>
+              <input
+                id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="Ex: maria@ifb.edu.br"
+                className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
+              />
+            </div>
+            
+            {/* TELEFONE */}
+            <div className="flex-1">
+              <label htmlFor="telefone" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Telefone</label>
+              <input
+                id="telefone" type="tel" required value={telefone} onChange={(e) => setTelefone(e.target.value)}
+                placeholder="(61) 90000-0000"
+                className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
+              />
+            </div>
           </div>
 
           {/* VÍNCULO (Só aparece se ela for APOIADORA) */}
@@ -202,9 +219,30 @@ export function Formulario() {
             </div>
           )}
 
+          {/* SENHAS */}
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row border-t border-gray-100 pt-4">
+            <div className="flex-1">
+              <label htmlFor="senha" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Crie uma Senha</label>
+              <input
+                id="senha" type="password" required value={senha} onChange={(e) => setSenha(e.target.value)}
+                placeholder="Mín. 6 caracteres"
+                className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
+              />
+            </div>
+            
+            <div className="flex-1">
+              <label htmlFor="confirmarSenha" className="mb-1 block font-urbanist text-[14px] font-medium text-[#303030] sm:text-[15px]">Confirmar Senha</label>
+              <input
+                id="confirmarSenha" type="password" required value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)}
+                placeholder="Repita a senha"
+                className="h-[40px] w-full rounded-[7px] border border-[#D8D8D8] bg-[#F3F3F3] px-3 font-urbanist text-[13px] text-[#303030] outline-none transition focus:border-[#BE89BD] focus:ring-2 focus:ring-[#BE89BD]/20 sm:h-[36px] sm:text-[12px]"
+              />
+            </div>
+          </div>
+
           {/* ERRO DE VALIDAÇÃO */}
           {erroMsg && (
-            <p className="mt-3 text-center font-urbanist text-[13px] font-bold text-red-500">
+            <p className="mt-4 text-center font-urbanist text-[13px] font-bold text-red-500">
               {erroMsg}
             </p>
           )}
@@ -212,27 +250,28 @@ export function Formulario() {
           {/* BOTÃO ENVIAR */}
           <button
             type="submit" disabled={carregando}
-            className="mx-auto mt-6 flex h-[44px] w-full items-center justify-center rounded-full bg-[#BE89BD] px-8 font-vastago text-[14px] font-bold text-white shadow-[0_4px_12px_rgba(190,137,189,0.35)] transition hover:-translate-y-[1px] hover:bg-[#AA75A9] active:scale-95 disabled:opacity-60 sm:h-[40px] sm:w-fit"
+            className="mx-auto mt-5 flex h-[44px] w-full items-center justify-center rounded-full bg-[#BE89BD] px-8 font-vastago text-[14px] font-bold text-white shadow-[0_4px_12px_rgba(190,137,189,0.35)] transition hover:-translate-y-[1px] hover:bg-[#AA75A9] active:scale-95 disabled:opacity-60 sm:h-[40px] sm:w-fit"
           >
-            {carregando ? "Enviando..." : "Enviar"}
+            {carregando ? "Enviando..." : "Concluir Cadastro"}
           </button>
         </form>
       </div>
 
+      {/* POP-UP DE SUCESSO */}
       {enviado && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="flex w-full max-w-[290px] flex-col items-center justify-center rounded-[28px] bg-[#BE89BD] px-6 py-8 text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] sm:max-w-[270px] sm:px-7">
             <p className="font-vastago text-[16px] font-bold leading-[1.2] text-white sm:text-[17px]">
-              Entraremos em contato
+              Cadastro concluído!
               <br />
-              em breve pelo seu email!
+              Já pode fazer login.
             </p>
             <span className="mt-4 text-[25px] leading-none text-white">☺</span>
             <button
-              type="button" onClick={() => setEnviado(false)}
+              type="button" onClick={() => { setEnviado(false); window.location.href = "/escolha"; }}
               className="mt-5 rounded-full bg-white/20 px-6 py-2 font-vastago text-[14px] font-bold text-white transition hover:bg-white/30 sm:text-[15px]"
             >
-              Fechar
+              Ir para o Login
             </button>
           </div>
         </div>

@@ -37,6 +37,7 @@ model Usuario {
   cpf         String?     @unique @db.VarChar(14)
   idade       Int?
   tipo        TipoPerfil
+  senha       String
   bio         String?     @db.Text
   codigo      String?     @unique @db.VarChar(10)
 
